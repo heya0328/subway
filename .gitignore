@@ -2,3 +2,4 @@ node_modules/
 *.ait
 .DS_Store
 .env
+.worktrees/
