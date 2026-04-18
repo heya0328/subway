@@ -6,7 +6,25 @@
 2. 하나의 파일에 코드를 다 넣지 말고, 기능별로 모듈화 해.
 3. 내 요청이 명확하지 않을 때 추론 및 실행하지 말고 우선 내 설명을 제대로 이해했는지 물어봐줘.
 
+
+
+기획이나 지시가 명료하지 않을 때, 다음과 같은 순서로 진행할 것.
+
+gstack과 superpowers를 통해 서비스를 구체화하고  확실한  기획을 바탕으로 앱인토스 서비스를 구현해야함.         
+
+1. gstack의 office hour
+2. superpowers의 brainstorming
+3. writing-plans
+4. Git worktrees
+5. sub-agent dev
+
+
+
+
+
 ---
+
+
 
 ## 앱인토스 개발 규칙
 
@@ -26,7 +44,7 @@
 
 ### 3. SDK API 호출 패턴
 
-- 모든 SDK API 호출은 **`isSupported()` 체크 → try-catch → 에러 핸들러** 3단계를 따른다.
+- 모든 SDK API 호출은 `**isSupported()` 체크 → try-catch → 에러 핸들러** 3단계를 따른다.
 - 비토스 환경(로컬 브라우저, 시뮬레이터)에서 크래시가 나지 않도록 항상 방어 코드를 작성한다.
 - SDK API가 실패해도 사용자 flow를 차단하지 않는다 (예: 광고 로드 실패 → 바로 다음 단계 진행).
 
@@ -67,7 +85,7 @@ useEffect(() => {
 ### 6. 광고 통합 패턴
 
 - 전면광고는 **load → show → load → show** 순환이 핵심이다. `dismissed` 후 반드시 다음 광고를 재로드한다.
-- 보상은 **`userEarnedReward` 이벤트에서만** 지급한다. `dismissed`에서 지급하면 안 된다.
+- 보상은 `**userEarnedReward` 이벤트에서만** 지급한다. `dismissed`에서 지급하면 안 된다.
 - 광고 로드는 마운트 시 즉시 하고, 표시는 사용자 액션에서 한다.
 - 광고 로드/표시 실패 시에도 앱 기능을 차단하지 않고 바로 다음 단계로 진행한다.
 - 배너광고 컨테이너: `width: 100%`, `height: 96px` 권장.
@@ -114,3 +132,24 @@ src/
 - `granite.config.ts`의 `appName`은 딥링크 키(`intoss://{appName}`)로 사용되며 콘솔에 등록된 값과 일치해야 한다.
 - 실기기 테스트 시 `web.host`를 디바이스가 접근 가능한 IP 주소로 설정하고, dev 명령에 `--host` 플래그를 추가한다.
 - CORS 설정: 프로덕션(`https://{appName}.apps.tossmini.com`)과 QR 테스트(`https://{appName}.private-apps.tossmini.com`)의 origin이 다르다.
+
+## Skill routing
+
+When the user's request matches an available skill, ALWAYS invoke it using the Skill
+tool as your FIRST action. Do NOT answer directly, do NOT use other tools first.
+The skill has specialized workflows that produce better results than ad-hoc answers.
+
+Key routing rules:
+- Product ideas, "is this worth building", brainstorming → invoke office-hours
+- Bugs, errors, "why is this broken", 500 errors → invoke investigate
+- Ship, deploy, push, create PR → invoke ship
+- QA, test the site, find bugs → invoke qa
+- Code review, check my diff → invoke review
+- Update docs after shipping → invoke document-release
+- Weekly retro → invoke retro
+- Design system, brand → invoke design-consultation
+- Visual audit, design polish → invoke design-review
+- Architecture review → invoke plan-eng-review
+- Save progress, checkpoint, resume → invoke checkpoint
+- Code quality, health check → invoke health
+
