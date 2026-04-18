@@ -1,0 +1,26 @@
+{
+  "name": "subway",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "granite dev",
+    "build": "granite build",
+    "lint": "biome check .",
+    "lint:fix": "biome check --fix ."
+  },
+  "dependencies": {
+    "@apps-in-toss/framework": "^2.4.7",
+    "@granite-js/native": "1.0.20",
+    "@granite-js/react-native": "1.0.20",
+    "@supabase/supabase-js": "^2.103.3",
+    "@toss/tds-react-native": "^2.0.3",
+    "brick-module": "^0.5.2",
+    "react": "^18.3.1",
+    "react-native": "^0.76.9"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/react": "^18.3.12",
+    "typescript": "^5.7.2"
+  }
+}
