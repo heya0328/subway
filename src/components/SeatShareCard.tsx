@@ -7,9 +7,10 @@ interface Props {
   share: SeatShare;
   userCar: number;
   userId: string;
+  onPress?: () => void;
 }
 
-export function SeatShareCard({ share, userCar, userId }: Props) {
+export function SeatShareCard({ share, userCar, userId, onPress }: Props) {
   const { claimSeat, getMyClaimStatus, isClaiming } = useSeatClaim();
   const [myStatus, setMyStatus] = useState<string | null>(null);
 
@@ -47,7 +48,7 @@ export function SeatShareCard({ share, userCar, userId }: Props) {
   };
 
   return (
-    <View style={styles.card}>
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
       <View style={styles.left}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>🧑</Text>
@@ -101,7 +102,8 @@ export function SeatShareCard({ share, userCar, userId }: Props) {
           </View>
         )}
       </View>
-    </View>
+      <Text style={styles.chevron}>›</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -131,4 +133,5 @@ const styles = StyleSheet.create({
   matchedBox: { backgroundColor: '#E8F5E9', borderRadius: 8, padding: 12, marginTop: 10 },
   matchedLabel: { fontSize: 14, fontWeight: '700', color: '#00C853', marginBottom: 4 },
   seatPosition: { fontSize: 16, fontWeight: '600', color: '#191F28' },
+  chevron: { fontSize: 24, color: '#B0B8C1', alignSelf: 'center' },
 });
