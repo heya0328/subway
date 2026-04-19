@@ -26,6 +26,7 @@ let cachedSettings: {
 } | null = null;
 
 function HomePage() {
+  const navigation = Route.useNavigation();
   const { userId, isLoading: authLoading } = useAuth();
   const { routine, isLoading: routineLoading } = useRoutine(userId);
 
@@ -230,7 +231,15 @@ function HomePage() {
             <Text style={styles.emptyDesc}>첫 번째로 자리를 공유해보세요!</Text>
           </View>
         ) : (
-          sortedShares.map((share) => <SeatShareCard key={share.id} share={share} userCar={userCar} userId={userId!} />)
+          sortedShares.map((share) => (
+            <SeatShareCard
+              key={share.id}
+              share={share}
+              userCar={userCar}
+              userId={userId!}
+              onPress={() => navigation.navigate('/seat/detail', { shareId: share.id, userCar: String(userCar) })}
+            />
+          ))
         )}
       </ScrollView>
 
