@@ -54,7 +54,6 @@ export function MyClaimsView({ userId }: Props) {
 
   useEffect(() => { fetchClaims(); }, [fetchClaims]);
 
-  // Subscribe to changes
   useEffect(() => {
     const channel = supabase
       .channel('my-claims-changes')
@@ -65,11 +64,7 @@ export function MyClaimsView({ userId }: Props) {
   }, [fetchClaims]);
 
   if (isLoading) {
-    return (
-      <View style={styles.center}>
-        <Text style={styles.loadingText}>불러오는 중...</Text>
-      </View>
-    );
+    return <View style={styles.center}><Text style={styles.loadingText}>불러오는 중...</Text></View>;
   }
 
   if (claims.length === 0) {
@@ -77,13 +72,13 @@ export function MyClaimsView({ userId }: Props) {
       <View style={styles.center}>
         <Text style={styles.emptyIcon}>🎫</Text>
         <Text style={styles.emptyTitle}>신청한 자리가 없어요</Text>
-        <Text style={styles.emptyDesc}>홈에서 빈 자리 카드를 눌러 신청해보세요</Text>
+        <Text style={styles.emptyDesc}>홈 탭에서 빈 자리 카드를 눌러{'\n'}자리를 신청해보세요</Text>
       </View>
     );
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>신청 현황</Text>
 
       {claims.map((claim) => {
@@ -95,25 +90,23 @@ export function MyClaimsView({ userId }: Props) {
 
         let remainingStations = 0;
         try {
-          remainingStations = getRemainingStationCount(
-            share.direction as Direction,
-            share.current_station,
-            share.exit_station
-          );
+          remainingStations = getRemainingStationCount(share.direction as Direction, share.current_station, share.exit_station);
         } catch {}
 
         return (
-          <View key={claim.id} style={styles.card}>
-            <View style={styles.cardHeader}>
-              <Text style={styles.carNum}>{share.car_number}번 칸</Text>
+          <View key={claim.id} style={[styles.card, isRejected && styles.cardFaded]}>
+            <View style={styles.cardTop}>
+              <View style={styles.carBadge}>
+                <Text style={styles.carBadgeText}>{share.car_number}번 칸</Text>
+              </View>
               {isPending && (
                 <View style={styles.pendingBadge}>
-                  <Text style={styles.pendingText}>대기 중</Text>
+                  <Text style={styles.pendingText}>⏳ 대기 중</Text>
                 </View>
               )}
               {isMatched && (
                 <View style={styles.matchedBadge}>
-                  <Text style={styles.matchedBadgeText}>매칭 성공!</Text>
+                  <Text style={styles.matchedBadgeText}>🎉 매칭 성공</Text>
                 </View>
               )}
               {isRejected && (
@@ -123,24 +116,29 @@ export function MyClaimsView({ userId }: Props) {
               )}
             </View>
 
-            <Text style={styles.exitInfo}>
-              {share.exit_station}에서 하차 예정
-            </Text>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>하차역</Text>
+              <Text style={styles.infoValue}>{share.exit_station}</Text>
+            </View>
 
             {remainingStations > 0 && !isRejected && (
               <View style={styles.stationsLeft}>
-                <Text style={styles.stationsLeftText}>
-                  🚇 {remainingStations}개 역 남음
-                </Text>
+                <View style={styles.stationsBar}>
+                  <View style={[styles.stationsBarFill, { width: `${Math.max(10, Math.min(100, 100 - remainingStations * 5))}%` as any }]} />
+                </View>
+                <Text style={styles.stationsLeftText}>{remainingStations}개 역 남음</Text>
               </View>
             )}
 
             {isMatched && share.seat_position ? (
               <View style={styles.revealedBox}>
-                <Text style={styles.revealedLabel}>🎉 좌석 위치 공개!</Text>
-                <Text style={styles.revealedText}>{share.car_number}번 칸 · {share.seat_position}</Text>
+                <Text style={styles.revealedIcon}>🎉</Text>
+                <View>
+                  <Text style={styles.revealedLabel}>좌석 위치 공개!</Text>
+                  <Text style={styles.revealedText}>{share.car_number}번 칸 · {share.seat_position}</Text>
+                </View>
               </View>
-            ) : isMatched && !share.seat_position ? (
+            ) : isMatched ? (
               <View style={styles.waitingBox}>
                 <Text style={styles.waitingText}>좌석 위치 입력 대기 중...</Text>
               </View>
@@ -154,27 +152,34 @@ export function MyClaimsView({ userId }: Props) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 16 },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
   loadingText: { fontSize: 14, color: '#8B95A1' },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
-  emptyTitle: { fontSize: 18, fontWeight: '700', color: '#191F28', marginBottom: 4 },
-  emptyDesc: { fontSize: 14, color: '#8B95A1', textAlign: 'center' },
-  title: { fontSize: 20, fontWeight: '700', color: '#191F28', marginBottom: 16 },
-  card: { backgroundColor: '#FFF', borderWidth: 1, borderColor: '#F0F0F0', borderRadius: 12, padding: 16, marginBottom: 12 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  carNum: { fontSize: 18, fontWeight: '700', color: '#191F28' },
-  pendingBadge: { backgroundColor: '#FFF3E8', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
+  emptyIcon: { fontSize: 56, marginBottom: 16 },
+  emptyTitle: { fontSize: 20, fontWeight: '700', color: '#191F28', marginBottom: 6 },
+  emptyDesc: { fontSize: 15, color: '#8B95A1', textAlign: 'center', lineHeight: 22 },
+  title: { fontSize: 22, fontWeight: '800', color: '#191F28', marginBottom: 16 },
+  card: { backgroundColor: '#FFF', borderRadius: 16, padding: 20, marginBottom: 14, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.06, shadowRadius: 8, elevation: 3 },
+  cardFaded: { opacity: 0.5 },
+  cardTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 },
+  carBadge: { backgroundColor: '#191F28', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 },
+  carBadgeText: { fontSize: 14, fontWeight: '700', color: '#FFF' },
+  pendingBadge: { backgroundColor: '#FFF0E5', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 },
   pendingText: { fontSize: 13, fontWeight: '600', color: '#FF6B00' },
-  matchedBadge: { backgroundColor: '#E8F5E9', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
+  matchedBadge: { backgroundColor: '#E8F5E9', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 },
   matchedBadgeText: { fontSize: 13, fontWeight: '600', color: '#00C853' },
-  rejectedBadge: { backgroundColor: '#F7F8FA', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 },
+  rejectedBadge: { backgroundColor: '#F2F3F6', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 5 },
   rejectedText: { fontSize: 13, color: '#8B95A1' },
-  exitInfo: { fontSize: 14, color: '#4E5968', marginBottom: 8 },
-  stationsLeft: { backgroundColor: '#F0F7FF', borderRadius: 8, padding: 10, marginBottom: 8 },
-  stationsLeftText: { fontSize: 14, fontWeight: '600', color: '#3182F6' },
-  revealedBox: { backgroundColor: '#E8F5E9', borderRadius: 8, padding: 12 },
-  revealedLabel: { fontSize: 15, fontWeight: '700', color: '#00C853', marginBottom: 4 },
-  revealedText: { fontSize: 17, fontWeight: '700', color: '#191F28' },
-  waitingBox: { backgroundColor: '#F7F8FA', borderRadius: 8, padding: 12 },
+  infoRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#F4F4F4' },
+  infoLabel: { fontSize: 14, color: '#8B95A1' },
+  infoValue: { fontSize: 14, fontWeight: '600', color: '#191F28' },
+  stationsLeft: { marginTop: 12 },
+  stationsBar: { height: 6, backgroundColor: '#F2F3F6', borderRadius: 3, overflow: 'hidden', marginBottom: 6 },
+  stationsBarFill: { height: '100%', backgroundColor: '#3182F6', borderRadius: 3 },
+  stationsLeftText: { fontSize: 13, fontWeight: '600', color: '#3182F6' },
+  revealedBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#F0FFF4', borderRadius: 12, padding: 14, marginTop: 14, gap: 10 },
+  revealedIcon: { fontSize: 28 },
+  revealedLabel: { fontSize: 14, fontWeight: '700', color: '#00C853' },
+  revealedText: { fontSize: 17, fontWeight: '700', color: '#191F28', marginTop: 2 },
+  waitingBox: { backgroundColor: '#F8F9FB', borderRadius: 12, padding: 14, marginTop: 14, alignItems: 'center' },
   waitingText: { fontSize: 14, color: '#8B95A1' },
 });
