@@ -1,23 +1,26 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { StationPicker } from './StationPicker';
+import { CarSelector } from './CarSelector';
 import { getStationsInDirection } from '../data/stations';
 import type { Direction } from '../types';
 
 interface Props {
   direction: Direction;
   currentStation: string;
-  onSubmit: (exitStation: string, exitMinutes: number, message: string) => Promise<void>;
+  userCar: number;
+  onSubmit: (exitStation: string, exitMinutes: number, message: string, carNumber: number) => Promise<void>;
   onCancel: () => void;
 }
 
 const MINUTE_OPTIONS = [1, 3, 5, 10, 15, 20];
 
-export function ShareForm({ direction, currentStation, onSubmit, onCancel }: Props) {
+export function ShareForm({ direction, currentStation, userCar, onSubmit, onCancel }: Props) {
   const [exitStation, setExitStation] = useState<string | null>(null);
   const [exitMinutes, setExitMinutes] = useState(5);
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
+  const [carNumber, setCarNumber] = useState(userCar);
 
   const upcomingStations = getStationsInDirection(direction, currentStation);
 
@@ -25,7 +28,7 @@ export function ShareForm({ direction, currentStation, onSubmit, onCancel }: Pro
     if (!exitStation) return;
     setIsSending(true);
     try {
-      await onSubmit(exitStation, exitMinutes, message);
+      await onSubmit(exitStation, exitMinutes, message, carNumber);
     } catch {
       Alert.alert('전송 실패', '다시 시도해주세요.');
     } finally {
@@ -36,6 +39,9 @@ export function ShareForm({ direction, currentStation, onSubmit, onCancel }: Pro
   return (
     <View style={styles.container}>
       <Text style={styles.title}>나도 내려요!</Text>
+
+      <Text style={styles.label}>내가 앉은 칸</Text>
+      <CarSelector totalCars={10} selectedCar={carNumber} recommendedCar={null} onSelect={setCarNumber} />
 
       <StationPicker
         label="하차 예정역"
