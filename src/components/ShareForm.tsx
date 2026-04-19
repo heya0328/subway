@@ -18,9 +18,9 @@ const MINUTE_OPTIONS = [1, 3, 5, 10, 15, 20];
 export function ShareForm({ direction, currentStation, userCar, onSubmit, onCancel }: Props) {
   const [exitStation, setExitStation] = useState<string | null>(null);
   const [exitMinutes, setExitMinutes] = useState(5);
+  const [carNumber, setCarNumber] = useState(userCar);
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [carNumber, setCarNumber] = useState(userCar);
 
   const upcomingStations = getStationsInDirection(direction, currentStation);
 
@@ -38,9 +38,11 @@ export function ShareForm({ direction, currentStation, userCar, onSubmit, onCanc
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>나도 내려요!</Text>
+      <View style={styles.handle} />
+      <Text style={styles.title}>내 자리 공유하기</Text>
+      <Text style={styles.subtitle}>곧 내릴 자리를 다른 승객에게 알려주세요</Text>
 
-      <Text style={styles.label}>내가 앉은 칸</Text>
+      <Text style={styles.sectionLabel}>내가 앉은 칸</Text>
       <CarSelector totalCars={10} selectedCar={carNumber} recommendedCar={null} onSelect={setCarNumber} />
 
       <StationPicker
@@ -50,13 +52,14 @@ export function ShareForm({ direction, currentStation, userCar, onSubmit, onCanc
         onSelect={setExitStation}
       />
 
-      <Text style={styles.label}>약 몇 분 후 하차?</Text>
+      <Text style={styles.sectionLabel}>약 몇 분 후 하차하나요?</Text>
       <View style={styles.minuteRow}>
         {MINUTE_OPTIONS.map((m) => (
           <TouchableOpacity
             key={m}
             style={[styles.minuteChip, exitMinutes === m && styles.minuteChipSelected]}
             onPress={() => setExitMinutes(m)}
+            activeOpacity={0.7}
           >
             <Text style={[styles.minuteText, exitMinutes === m && styles.minuteTextSelected]}>
               {m}분
@@ -65,25 +68,28 @@ export function ShareForm({ direction, currentStation, userCar, onSubmit, onCanc
         ))}
       </View>
 
-      <Text style={styles.label}>메시지 (선택)</Text>
-      <TextInput
-        style={styles.messageInput}
-        placeholder="예: 창가 자리예요"
-        placeholderTextColor="#B0B8C1"
-        value={message}
-        onChangeText={setMessage}
-        maxLength={50}
-      />
+      <Text style={styles.sectionLabel}>메시지 (선택)</Text>
+      <View style={styles.messageBox}>
+        <TextInput
+          style={styles.messageInput}
+          placeholder="예: 왼쪽 창가 자리예요"
+          placeholderTextColor="#B0B8C1"
+          value={message}
+          onChangeText={setMessage}
+          maxLength={50}
+        />
+      </View>
 
       <View style={styles.actions}>
         <TouchableOpacity
           style={[styles.submitBtn, !exitStation && styles.submitBtnDisabled]}
           onPress={handleSubmit}
           disabled={!exitStation || isSending}
+          activeOpacity={0.8}
         >
-          <Text style={styles.submitBtnText}>{isSending ? '전송 중...' : '공유하기'}</Text>
+          <Text style={styles.submitBtnText}>{isSending ? '공유 중...' : '자리 공유하기'}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.cancelBtn} onPress={onCancel}>
+        <TouchableOpacity style={styles.cancelBtn} onPress={onCancel} activeOpacity={0.7}>
           <Text style={styles.cancelBtnText}>취소</Text>
         </TouchableOpacity>
       </View>
@@ -92,19 +98,22 @@ export function ShareForm({ direction, currentStation, userCar, onSubmit, onCanc
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16 },
-  title: { fontSize: 20, fontWeight: '700', color: '#191F28', marginBottom: 16 },
-  label: { fontSize: 14, fontWeight: '600', color: '#333', marginBottom: 8 },
-  minuteRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 16 },
-  minuteChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 8, borderWidth: 1, borderColor: '#E5E5E5' },
-  minuteChipSelected: { borderColor: '#FF6B00', backgroundColor: '#FFF3E8' },
-  minuteText: { fontSize: 14, color: '#666' },
-  minuteTextSelected: { color: '#FF6B00', fontWeight: '600' },
-  messageInput: { height: 44, borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 8, paddingHorizontal: 12, fontSize: 16, color: '#191F28', marginBottom: 20 },
+  container: { backgroundColor: '#FFF', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 20, paddingTop: 12, borderWidth: 1, borderColor: '#F0F0F0', marginHorizontal: -16, marginBottom: -16 },
+  handle: { width: 36, height: 4, borderRadius: 2, backgroundColor: '#D1D6DB', alignSelf: 'center', marginBottom: 16 },
+  title: { fontSize: 20, fontWeight: '800', color: '#191F28', marginBottom: 4 },
+  subtitle: { fontSize: 14, color: '#8B95A1', marginBottom: 20 },
+  sectionLabel: { fontSize: 14, fontWeight: '600', color: '#4E5968', marginBottom: 10 },
+  minuteRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 20 },
+  minuteChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 10, backgroundColor: '#F2F3F6' },
+  minuteChipSelected: { backgroundColor: '#FF6B00' },
+  minuteText: { fontSize: 15, fontWeight: '600', color: '#8B95A1' },
+  minuteTextSelected: { color: '#FFF' },
+  messageBox: { marginBottom: 24 },
+  messageInput: { height: 48, borderWidth: 1.5, borderColor: '#E8EBED', borderRadius: 12, paddingHorizontal: 14, fontSize: 15, color: '#191F28', backgroundColor: '#F8F9FB' },
   actions: { gap: 10 },
-  submitBtn: { backgroundColor: '#FF6B00', paddingVertical: 16, borderRadius: 12, alignItems: 'center' },
+  submitBtn: { backgroundColor: '#3182F6', paddingVertical: 16, borderRadius: 14, alignItems: 'center' },
   submitBtnDisabled: { backgroundColor: '#B0B8C1' },
-  submitBtnText: { fontSize: 16, fontWeight: '700', color: '#FFF' },
+  submitBtnText: { fontSize: 17, fontWeight: '700', color: '#FFF' },
   cancelBtn: { paddingVertical: 12, alignItems: 'center' },
-  cancelBtnText: { fontSize: 14, color: '#8B95A1' },
+  cancelBtnText: { fontSize: 15, color: '#8B95A1' },
 });
