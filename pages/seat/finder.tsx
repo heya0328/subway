@@ -1,11 +1,13 @@
 import { createRoute } from '@granite-js/react-native';
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { ArrivalInfoCard } from '../../src/components/ArrivalInfo';
 import { DirectionPicker } from '../../src/components/DirectionPicker';
 import { StationPicker } from '../../src/components/StationPicker';
 import { DepartureList } from '../../src/components/DepartureList';
 import { getStationNames } from '../../src/data/stations';
 import { supabase } from '../../src/data/supabase';
+import { useArrivalInfo } from '../../src/hooks/useArrivalInfo';
 import { useAuth } from '../../src/hooks/useAuth';
 import { useRealtimeSeats } from '../../src/hooks/useRealtimeSeats';
 import { LINE_NAME } from '../../src/constants';
@@ -18,6 +20,7 @@ function SeatFinderPage() {
   const [direction, setDirection] = useState<Direction | null>(null);
   const [currentStation, setCurrentStation] = useState<string | null>(null);
   const { departures, isLoading } = useRealtimeSeats(LINE_NAME, direction, currentStation);
+  const { arrivals, isLoading: arrivalLoading } = useArrivalInfo(currentStation);
 
   const handleSeatReport = async () => {
     if (!userId || !currentStation) return;
@@ -37,6 +40,7 @@ function SeatFinderPage() {
       )}
       {currentStation && (
         <>
+          <ArrivalInfoCard arrivals={arrivals} isLoading={arrivalLoading} />
           {isLoading ? (
             <Text style={styles.loading}>불러오는 중...</Text>
           ) : (
