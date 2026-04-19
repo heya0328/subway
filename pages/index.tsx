@@ -230,7 +230,7 @@ function HomePage() {
             <Text style={styles.emptyDesc}>첫 번째로 자리를 공유해보세요!</Text>
           </View>
         ) : (
-          sortedShares.map((share) => <SeatShareCard key={share.id} share={share} userCar={userCar} />)
+          sortedShares.map((share) => <SeatShareCard key={share.id} share={share} userCar={userCar} userId={userId!} />)
         )}
       </ScrollView>
 
