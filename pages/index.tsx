@@ -36,7 +36,7 @@ function DashboardPage() {
     const remaining = getRemainingInfo();
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Subway</Text>
+        <Text style={styles.title}>Mozy</Text>
         <RideStatusCard
           status={ride.status as 'riding' | 'arriving_soon'}
           arrivalStation={ride.arrival_station}
@@ -45,6 +45,9 @@ function DashboardPage() {
         />
         <TouchableOpacity style={styles.primaryBtn} onPress={() => navigation.navigate('/ride/active')}>
           <Text style={styles.primaryBtnText}>탑승 상세 보기</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.feedBtn} onPress={() => navigation.navigate('/feed')}>
+          <Text style={styles.feedBtnText}>실시간 피드</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryBtn} onPress={() => navigation.navigate('/seat/finder')}>
           <Text style={styles.secondaryBtnText}>빈 자리 확인하기</Text>
@@ -56,7 +59,7 @@ function DashboardPage() {
   if (!routine) {
     return (
       <View style={styles.container}>
-        <Text style={styles.title}>Subway</Text>
+        <Text style={styles.title}>Mozy</Text>
         <View style={styles.card}>
           <Text style={styles.cardTitle}>나도 앉고 싶어요!</Text>
           <Text style={styles.cardDesc}>출퇴근 루틴을 등록하면 빈 자리 정보를 공유할 수 있어요</Text>
@@ -64,6 +67,9 @@ function DashboardPage() {
             <Text style={styles.primaryBtnText}>루틴 등록하기</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity style={styles.feedBtn} onPress={() => navigation.navigate('/feed')}>
+          <Text style={styles.feedBtnText}>실시간 피드</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.secondaryBtn} onPress={() => navigation.navigate('/seat/finder')}>
           <Text style={styles.secondaryBtnText}>빈 자리 확인하기</Text>
         </TouchableOpacity>
@@ -86,7 +92,7 @@ function DashboardPage() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Subway</Text>
+      <Text style={styles.title}>Mozy</Text>
       <View style={styles.card}>
         <Text style={styles.cardTitle}>내 루틴</Text>
         <Text style={styles.routeText}>{routine.departure_station} → {routine.arrival_station}</Text>
@@ -97,6 +103,9 @@ function DashboardPage() {
           <Text style={styles.rideBtnText}>지금 탑승 중이에요!</Text>
         </TouchableOpacity>
       )}
+      <TouchableOpacity style={styles.feedBtn} onPress={() => navigation.navigate('/feed')}>
+        <Text style={styles.feedBtnText}>실시간 피드</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={styles.secondaryBtn} onPress={() => navigation.navigate('/seat/finder')}>
         <Text style={styles.secondaryBtnText}>빈 자리 확인하기</Text>
       </TouchableOpacity>
@@ -123,6 +132,8 @@ const styles = StyleSheet.create({
   dirText: { fontSize: 14, color: '#8B95A1', marginTop: 4 },
   primaryBtn: { backgroundColor: '#3182F6', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12 },
   primaryBtnText: { fontSize: 16, fontWeight: '700', color: '#FFF' },
+  feedBtn: { backgroundColor: '#FF6B00', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12 },
+  feedBtnText: { fontSize: 16, fontWeight: '700', color: '#FFF' },
   secondaryBtn: { paddingVertical: 16, borderRadius: 12, alignItems: 'center', borderWidth: 1, borderColor: '#E5E5E5' },
   secondaryBtnText: { fontSize: 16, fontWeight: '600', color: '#8B95A1' },
   rideBtn: { backgroundColor: '#00C853', paddingVertical: 16, borderRadius: 12, alignItems: 'center', marginBottom: 12 },
