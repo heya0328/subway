@@ -1,12 +1,15 @@
 import { createRoute } from '@granite-js/react-native';
 import React, { useState, useMemo, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, ActivityIndicator, SafeAreaView } from 'react-native';
 import { DirectionPicker } from '../src/components/DirectionPicker';
 import { StationPicker } from '../src/components/StationPicker';
 import { CarSelector } from '../src/components/CarSelector';
 import { SeatShareCard } from '../src/components/SeatShareCard';
 import { ShareForm } from '../src/components/ShareForm';
 import { ArrivalInfoCard } from '../src/components/ArrivalInfo';
+import { BottomTabBar } from '../src/components/BottomTabBar';
+import { MySeatView } from '../src/components/MySeatView';
+import { MyClaimsView } from '../src/components/MyClaimsView';
 import { getStationNames, getStationsInDirection } from '../src/data/stations';
 import { useAuth } from '../src/hooks/useAuth';
 import { useRoutine } from '../src/hooks/useRoutine';
@@ -15,7 +18,7 @@ import { useArrivalInfo } from '../src/hooks/useArrivalInfo';
 import { LINE_NAME } from '../src/constants';
 import type { Direction } from '../src/types';
 
-export const Route = createRoute('/', { component: HomePage });
+export const Route = createRoute('/', { component: HomePage, screenOptions: { headerShown: false } });
 
 // Persist settings across navigations
 let cachedSettings: {
@@ -37,6 +40,13 @@ function HomePage() {
   const [userCar, setUserCar] = useState(cachedSettings?.car ?? 5);
   const [isSetupDone, setIsSetupDone] = useState(cachedSettings !== null);
   const [showShareForm, setShowShareForm] = useState(false);
+  const [activeTab, setActiveTab] = useState('home');
+
+  const TABS = [
+    { key: 'home', label: '홈', icon: '🏠' },
+    { key: 'myseat', label: '내 자리', icon: '💺' },
+    { key: 'claims', label: '신청 현황', icon: '🎫' },
+  ];
 
   // Auto-populate from routine
   useEffect(() => {
@@ -103,9 +113,9 @@ function HomePage() {
 
   if (authLoading || routineLoading) {
     return (
-      <View style={styles.center}>
+      <SafeAreaView style={styles.center}>
         <ActivityIndicator size="large" color="#3182F6" />
-      </View>
+      </SafeAreaView>
     );
   }
 
@@ -115,6 +125,7 @@ function HomePage() {
     const arrivalStations = direction && departure ? getStationsInDirection(direction, departure) : [];
 
     return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
       <ScrollView style={styles.container}>
         <Text style={styles.setupTitle}>Mozy</Text>
         <Text style={styles.setupDesc}>지하철 빈 자리를 실시간으로 확인하세요</Text>
@@ -153,103 +164,119 @@ function HomePage() {
           </>
         )}
       </ScrollView>
+      </SafeAreaView>
     );
   }
 
   // ── State 2: Main Feed ──
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
     <View style={styles.feedContainer}>
-      <ScrollView style={styles.feedScroll}>
-        {/* Route header */}
-        <View style={styles.routeHeader}>
-          <Text style={styles.routeArrows}>↕</Text>
-          <View style={styles.lineBadge}>
-            <Text style={styles.lineBadgeText}>2</Text>
-          </View>
-          <Text style={styles.routeText}>
-            {departure} ··· {arrival}
-          </Text>
-          <TouchableOpacity
-            onPress={() => {
-              cachedSettings = null;
-              setIsSetupDone(false);
-            }}
-          >
-            <Text style={styles.editBtn}>수정</Text>
-          </TouchableOpacity>
-        </View>
+      {activeTab === 'home' && (
+        <>
+          <ScrollView style={styles.feedScroll}>
+            {/* Route header */}
+            <View style={styles.routeHeader}>
+              <Text style={styles.routeArrows}>↕</Text>
+              <View style={styles.lineBadge}>
+                <Text style={styles.lineBadgeText}>2</Text>
+              </View>
+              <Text style={styles.routeText}>
+                {departure} ··· {arrival}
+              </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  cachedSettings = null;
+                  setIsSetupDone(false);
+                }}
+              >
+                <Text style={styles.editBtn}>수정</Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* Headline */}
-        {recommendedCar && (
-          <Text style={styles.headline}>
-            {recommendedCar}번 칸에 곧 빌 자리가{'\n'}가장 많아요
-          </Text>
-        )}
-        {!recommendedCar && shares.length === 0 && (
-          <Text style={styles.headline}>빈 자리 정보를{'\n'}기다리고 있어요</Text>
-        )}
+            {/* Headline */}
+            {recommendedCar && (
+              <Text style={styles.headline}>
+                {recommendedCar}번 칸에 곧 빌 자리가{'\n'}가장 많아요
+              </Text>
+            )}
+            {!recommendedCar && shares.length === 0 && (
+              <Text style={styles.headline}>빈 자리 정보를{'\n'}기다리고 있어요</Text>
+            )}
 
-        {/* Car selector */}
-        <CarSelector
-          totalCars={10}
-          selectedCar={userCar}
-          recommendedCar={recommendedCar}
-          onSelect={(c) => {
-            setUserCar(c);
-            if (cachedSettings) cachedSettings.car = c;
-          }}
-        />
-
-        {/* Arrival info */}
-        <ArrivalInfoCard arrivals={arrivals} isLoading={arrivalLoading} />
-
-        {/* Share form */}
-        {showShareForm && direction && departure && (
-          <ShareForm
-            direction={direction}
-            currentStation={departure}
-            userCar={userCar}
-            onSubmit={handleShare}
-            onCancel={() => setShowShareForm(false)}
-          />
-        )}
-
-        {/* Feed header */}
-        <View style={styles.feedHeader}>
-          <Text style={styles.feedTitle}>
-            이 열차의 빈자리 <Text style={styles.feedCount}>{shares.length}</Text>
-          </Text>
-          <Text style={styles.feedSort}>가까운 순</Text>
-        </View>
-
-        {/* Feed list */}
-        {feedLoading ? (
-          <ActivityIndicator style={{ marginTop: 20 }} color="#3182F6" />
-        ) : sortedShares.length === 0 ? (
-          <View style={styles.emptyFeed}>
-            <Text style={styles.emptyTitle}>아직 공유된 정보가 없어요</Text>
-            <Text style={styles.emptyDesc}>첫 번째로 자리를 공유해보세요!</Text>
-          </View>
-        ) : (
-          sortedShares.map((share) => (
-            <SeatShareCard
-              key={share.id}
-              share={share}
-              userCar={userCar}
-              userId={userId!}
-              onPress={() => navigation.navigate('/seat/detail', { shareId: share.id, userCar: String(userCar) })}
+            {/* Car selector */}
+            <CarSelector
+              totalCars={10}
+              selectedCar={userCar}
+              recommendedCar={recommendedCar}
+              onSelect={(c) => {
+                setUserCar(c);
+                if (cachedSettings) cachedSettings.car = c;
+              }}
             />
-          ))
-        )}
-      </ScrollView>
 
-      {/* FAB */}
-      {!showShareForm && isSetupDone && (
-        <TouchableOpacity style={styles.fab} onPress={() => setShowShareForm(true)}>
-          <Text style={styles.fabText}>+ 내 자리 공유</Text>
-        </TouchableOpacity>
+            {/* Arrival info */}
+            <ArrivalInfoCard arrivals={arrivals} isLoading={arrivalLoading} />
+
+            {/* Share form */}
+            {showShareForm && direction && departure && (
+              <ShareForm
+                direction={direction}
+                currentStation={departure}
+                userCar={userCar}
+                onSubmit={handleShare}
+                onCancel={() => setShowShareForm(false)}
+              />
+            )}
+
+            {/* Feed header */}
+            <View style={styles.feedHeader}>
+              <Text style={styles.feedTitle}>
+                이 열차의 빈자리 <Text style={styles.feedCount}>{shares.length}</Text>
+              </Text>
+              <Text style={styles.feedSort}>가까운 순</Text>
+            </View>
+
+            {/* Feed list */}
+            {feedLoading ? (
+              <ActivityIndicator style={{ marginTop: 20 }} color="#3182F6" />
+            ) : sortedShares.length === 0 ? (
+              <View style={styles.emptyFeed}>
+                <Text style={styles.emptyTitle}>아직 공유된 정보가 없어요</Text>
+                <Text style={styles.emptyDesc}>첫 번째로 자리를 공유해보세요!</Text>
+              </View>
+            ) : (
+              sortedShares.map((share) => (
+                <SeatShareCard
+                  key={share.id}
+                  share={share}
+                  userCar={userCar}
+                  onPress={() => navigation.navigate('/seat/detail', { shareId: share.id, userCar: String(userCar) })}
+                />
+              ))
+            )}
+          </ScrollView>
+
+          {/* FAB */}
+          {!showShareForm && (
+            <TouchableOpacity style={styles.fab} onPress={() => setShowShareForm(true)}>
+              <Text style={styles.fabText}>+ 내 자리 공유</Text>
+            </TouchableOpacity>
+          )}
+        </>
       )}
+
+      {activeTab === 'myseat' && userId && (
+        <MySeatView userId={userId} />
+      )}
+
+      {activeTab === 'claims' && userId && (
+        <MyClaimsView userId={userId} />
+      )}
+
+      <BottomTabBar tabs={TABS} activeTab={activeTab} onTabPress={setActiveTab} />
     </View>
+    </SafeAreaView>
   );
 }
 
