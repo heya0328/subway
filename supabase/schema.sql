@@ -43,3 +43,19 @@ CREATE TABLE IF NOT EXISTS seat_reports (
 ALTER PUBLICATION supabase_realtime ADD TABLE active_rides;
 
 ALTER TABLE seat_shares ADD COLUMN IF NOT EXISTS car_number int NOT NULL DEFAULT 5;
+
+-- Seat matching fields
+ALTER TABLE seat_shares ADD COLUMN IF NOT EXISTS seat_position text DEFAULT '';
+ALTER TABLE seat_shares ADD COLUMN IF NOT EXISTS matched_user_id text DEFAULT NULL;
+
+-- Seat claims table
+CREATE TABLE IF NOT EXISTS seat_claims (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  seat_share_id uuid NOT NULL REFERENCES seat_shares(id) ON DELETE CASCADE,
+  user_id text NOT NULL,
+  status text NOT NULL DEFAULT 'pending',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE seat_claims DISABLE ROW LEVEL SECURITY;
+ALTER PUBLICATION supabase_realtime ADD TABLE seat_claims;
