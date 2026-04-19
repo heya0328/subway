@@ -52,3 +52,16 @@ export interface DepartureCount {
   arrival_station: string;
   departing_count: number;
 }
+
+export interface SeatShare {
+  id: string;
+  user_id: string;
+  line: string;
+  direction: Direction;
+  current_station: string;
+  exit_station: string;
+  exit_minutes: number;
+  message: string;
+  created_at: string;
+  expires_at: string;
+}
