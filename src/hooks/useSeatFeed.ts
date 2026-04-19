@@ -48,6 +48,7 @@ export function useSeatFeed(
     exitStation: string;
     exitMinutes: number;
     message: string;
+    carNumber: number;
   }) => {
     const expiresAt = new Date(Date.now() + (params.exitMinutes + 5) * 60 * 1000);
     const { error } = await supabase.from('seat_shares').insert({
@@ -58,6 +59,7 @@ export function useSeatFeed(
       exit_station: params.exitStation,
       exit_minutes: params.exitMinutes,
       message: params.message,
+      car_number: params.carNumber,
       expires_at: expiresAt.toISOString(),
     });
     if (error) throw error;

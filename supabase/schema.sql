@@ -41,3 +41,5 @@ CREATE TABLE IF NOT EXISTS seat_reports (
 
 -- Enable Realtime on active_rides
 ALTER PUBLICATION supabase_realtime ADD TABLE active_rides;
+
+ALTER TABLE seat_shares ADD COLUMN IF NOT EXISTS car_number int NOT NULL DEFAULT 5;

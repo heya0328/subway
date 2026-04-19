@@ -62,6 +62,7 @@ export interface SeatShare {
   exit_station: string;
   exit_minutes: number;
   message: string;
+  car_number: number;
   created_at: string;
   expires_at: string;
 }
