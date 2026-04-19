@@ -63,6 +63,16 @@ export interface SeatShare {
   exit_minutes: number;
   message: string;
   car_number: number;
+  seat_position: string;
+  matched_user_id: string | null;
   created_at: string;
   expires_at: string;
+}
+
+export interface SeatClaim {
+  id: string;
+  seat_share_id: string;
+  user_id: string;
+  status: 'pending' | 'matched' | 'rejected';
+  created_at: string;
 }
