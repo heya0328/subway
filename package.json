@@ -1,12 +1,9 @@
 {
-  "name": "subway",
-  "version": "0.0.1",
+  "name": "mozy",
   "private": true,
   "scripts": {
-    "dev": "granite dev",
-    "build": "granite build",
-    "lint": "biome check .",
-    "lint:fix": "biome check --fix ."
+    "dev": "node --require ./patch-fs.js node_modules/.bin/granite dev",
+    "build": "granite build"
   },
   "dependencies": {
     "@apps-in-toss/framework": "^2.4.7",
@@ -14,13 +11,19 @@
     "@granite-js/react-native": "1.0.20",
     "@supabase/supabase-js": "^2.103.3",
     "@toss/tds-react-native": "^2.0.3",
-    "brick-module": "^0.5.2",
-    "react": "^18.3.1",
-    "react-native": "^0.76.9"
+    "brick-module": "0.5.1",
+    "frogress-bar": "^0.1.0",
+    "graceful-fs": "^4.2.11",
+    "react": "19.2.3",
+    "react-native": "0.84.0",
+    "whatwg-url-without-unicode": "^8.0.0-3"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/react": "^18.3.12",
-    "typescript": "^5.7.2"
+    "@babel/core": "7.28.5",
+    "@babel/runtime": "7.28.4",
+    "@granite-js/plugin-router": "1.0.20",
+    "@types/react": "19.2.0",
+    "babel-preset-granite": "1.0.20",
+    "typescript": "^5.8.3"
   }
 }

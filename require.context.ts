@@ -1,1 +1,2 @@
-export const context = require.context('./pages', true, /\.(tsx|ts)$/);
+// @ts-ignore
+export const context = require.context('./pages');

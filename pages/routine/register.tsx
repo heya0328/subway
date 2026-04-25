@@ -53,7 +53,7 @@ function RegisterPage() {
         departure_time: `${hour}:${minute}`,
         days_of_week: selectedDays,
       });
-      navigation.navigate('/');
+      navigation.goBack();
     } catch {
       Alert.alert('저장 실패', '다시 시도해주세요.');
     } finally {

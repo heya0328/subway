@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { supabase } from '../data/supabase';
 
 export function useSeatClaim() {
-  const [isClaming, setIsClaiming] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const claimSeat = useCallback(async (seatShareId: string, userId: string) => {
     setIsClaiming(true);
@@ -20,7 +20,7 @@ export function useSeatClaim() {
         return { alreadyClaimed: true };
       }
 
-      // Insert claim
+      // Insert claim as pending (매칭은 "내려요" 버튼에서 실행)
       const { error } = await supabase
         .from('seat_claims')
         .insert({
@@ -31,41 +31,7 @@ export function useSeatClaim() {
 
       if (error) throw error;
 
-      // Try to match: check how many claims exist
-      const { data: claims } = await supabase
-        .from('seat_claims')
-        .select('id, user_id')
-        .eq('seat_share_id', seatShareId)
-        .eq('status', 'pending');
-
-      if (claims && claims.length > 0) {
-        // Random pick from all pending claims
-        const winner = claims[Math.floor(Math.random() * claims.length)];
-
-        // Update winner to matched
-        await supabase
-          .from('seat_claims')
-          .update({ status: 'matched' })
-          .eq('id', winner.id);
-
-        // Update seat_share with matched_user_id
-        await supabase
-          .from('seat_shares')
-          .update({ matched_user_id: winner.user_id })
-          .eq('id', seatShareId);
-
-        // Reject all others
-        await supabase
-          .from('seat_claims')
-          .update({ status: 'rejected' })
-          .eq('seat_share_id', seatShareId)
-          .neq('id', winner.id)
-          .eq('status', 'pending');
-
-        return { matched: winner.user_id === userId };
-      }
-
-      return { matched: false };
+      return { claimed: true };
     } catch (err) {
       throw err;
     } finally {
@@ -88,5 +54,5 @@ export function useSeatClaim() {
     }
   }, []);
 
-  return { claimSeat, getMyClaimStatus, isClaiming: isClaming };
+  return { claimSeat, getMyClaimStatus, isClaiming };
 }

@@ -1,6 +1,6 @@
 import { createRoute } from '@granite-js/react-native';
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Alert, SafeAreaView } from 'react-native';
 import { useAuth } from '../../src/hooks/useAuth';
 import { useSeatClaim } from '../../src/hooks/useSeatClaim';
 import { supabase } from '../../src/data/supabase';
@@ -8,6 +8,7 @@ import type { SeatShare } from '../../src/types';
 
 export const Route = createRoute('/seat/detail', {
   component: SeatDetailPage,
+  screenOptions: { headerShown: false },
 });
 
 function SeatDetailPage() {
@@ -70,7 +71,7 @@ function SeatDetailPage() {
   const directionText = share.car_number > userCar ? '열차 방향' : share.car_number < userCar ? '열차 반대 방향' : '같은 칸';
   const distanceText = distance === 0 ? '같은 칸' : `${directionText} ${distance}칸 이동`;
 
-  const isMyShare = share.user_id === userId;
+  const isMyShare = false; // 로컬 테스트: 본인 자리도 신청 가능
   const isMatched = share.matched_user_id !== null;
   const isMatchedToMe = share.matched_user_id === userId;
 
@@ -82,23 +83,21 @@ function SeatDetailPage() {
         Alert.alert('이미 신청했어요', '매칭 결과를 기다려주세요.');
         return;
       }
-      if (result.matched) {
-        Alert.alert('매칭 성공! 🎉', '자리 위치가 곧 공개됩니다.');
-        setMyStatus('matched');
-        // Refresh share data
-        const { data } = await supabase.from('seat_shares').select('*').eq('id', share.id).single();
-        if (data) setShare(data);
-      } else {
-        Alert.alert('신청 완료', '매칭 결과를 기다려주세요.');
-        setMyStatus('pending');
-      }
+      Alert.alert('신청 완료! 🎉', '자리 주인이 내릴 때 랜덤으로 매칭됩니다.');
+      setMyStatus('pending');
     } catch {
       Alert.alert('신청 실패', '다시 시도해주세요.');
     }
   };
 
   return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFF' }}>
     <ScrollView style={styles.container}>
+      {/* Back button */}
+      <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <Text style={styles.backBtnText}>← 돌아가기</Text>
+      </TouchableOpacity>
+
       {/* Car visual */}
       <View style={styles.carVisual}>
         <View style={styles.carBadge}>
@@ -181,11 +180,14 @@ function SeatDetailPage() {
         </View>
       )}
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFF', padding: 16 },
+  backBtn: { paddingVertical: 8, marginBottom: 8 },
+  backBtnText: { fontSize: 16, color: '#3182F6', fontWeight: '600' },
   center: { flex: 1, backgroundColor: '#FFF', justifyContent: 'center', alignItems: 'center' },
   loadingText: { fontSize: 16, color: '#8B95A1' },
   emptyText: { fontSize: 16, color: '#8B95A1', marginBottom: 12 },

@@ -257,13 +257,14 @@ function HomePage() {
             )}
           </ScrollView>
 
-          {/* FAB */}
-          {!showShareForm && (
-            <TouchableOpacity style={styles.fab} onPress={() => setShowShareForm(true)}>
-              <Text style={styles.fabText}>+ 내 자리 공유</Text>
-            </TouchableOpacity>
-          )}
         </>
+      )}
+
+      {/* FAB - 홈탭에서 항상 표시 */}
+      {activeTab === 'home' && !showShareForm && (
+        <TouchableOpacity style={styles.fab} onPress={() => setShowShareForm(true)}>
+          <Text style={styles.fabText}>+ 내 자리 공유</Text>
+        </TouchableOpacity>
       )}
 
       {activeTab === 'myseat' && userId && (
@@ -325,7 +326,7 @@ const styles = StyleSheet.create({
   // FAB
   fab: {
     position: 'absolute',
-    bottom: 24,
+    bottom: 80,
     right: 16,
     backgroundColor: '#191F28',
     paddingHorizontal: 24,
@@ -336,6 +337,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 8,
+    zIndex: 10,
   },
   fabText: { fontSize: 15, fontWeight: '700', color: '#FFF' },
 });
