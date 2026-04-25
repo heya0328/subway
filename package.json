@@ -3,7 +3,8 @@
   "private": true,
   "scripts": {
     "dev": "node --require ./patch-fs.js node_modules/.bin/granite dev",
-    "build": "granite build"
+    "build": "granite build",
+    "postinstall": "node ./scripts/patch-watchman.js"
   },
   "dependencies": {
     "@apps-in-toss/framework": "^2.4.7",
